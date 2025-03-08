@@ -1,0 +1,26 @@
+# Traefik Setup
+services:
+  traefik:
+    image: traefik:v3
+    container_name: traefik
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Dashboard port
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - ./acme.json:/acme.json
+      - ./conf:/etc/traefik/conf # Extra directory for dynamic configurations
+    networks:
+      - frontend
+    command:
+      # Moved from static conf to pass email as env var
+      - '--certificateresolvers.letsencrypt.acme.email=${ACME_EMAIL}'
+    env_file:
+      - .env
+
+networks:
+  frontend:
+    external: true
