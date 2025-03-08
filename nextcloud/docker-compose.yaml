@@ -17,6 +17,9 @@ services:
       APACHE_PORT: "11000"
       APACHE_IP_BINDING: "0.0.0.0"
       APACHE_ADDITIONAL_NETWORK: frontend
+      # Putting this here because I've never been able to make this work with a reverse proxy.
+      # If you want to try and get domain validation up and running, be my guest :)
+      SKIP_DOMAIN_VALIDATION: true
 
 volumes:
   nextcloud_aio_mastercontainer:
