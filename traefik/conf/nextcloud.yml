@@ -3,7 +3,7 @@
 http:
   routers:
     nextcloud:
-      rule: "Host(`cloud.${DOMAIN}`)`)"
+      rule: Host(`cloud.{{ env "DOMAIN" }}`)
       entrypoints:
         - "websecure"
       service: nextcloud

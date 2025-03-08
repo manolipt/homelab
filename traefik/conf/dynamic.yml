@@ -1,8 +1,0 @@
-# Traefik dynamic configuration file
-tls:
-  certificates:
-    certResolver: letsencrypt
-    domains:
-      - main: "${DOMAIN}"
-        sans:
-          - '*.${DOMAIN}'

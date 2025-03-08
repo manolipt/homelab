@@ -12,6 +12,9 @@ entryPoints:
     http:
       tls:
         certResolver: letsencrypt
+        domains:
+          - main: "secretlyanarwhal.com"
+        options: default
 
 certificatesResolvers:
   staging:

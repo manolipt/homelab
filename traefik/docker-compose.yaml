@@ -8,6 +8,11 @@ services:
       - "80:80"
       - "443:443"
       - "8080:8080"  # Dashboard port
+    env_file:
+      - .env
+    environment:
+      TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_EMAIL: ${ACME_EMAIL}
+      TRAEFIK_CERTIFICATESRESOLVERS_staging_ACME_EMAIL: ${ACME_EMAIL}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik.yml:/etc/traefik/traefik.yml
@@ -15,11 +20,6 @@ services:
       - ./conf:/etc/traefik/conf # Extra directory for dynamic configurations
     networks:
       - frontend
-    command:
-      # Moved from static conf to pass email as env var
-      - '--certificateresolvers.letsencrypt.acme.email=${ACME_EMAIL}'
-    env_file:
-      - .env
 
 networks:
   frontend:
