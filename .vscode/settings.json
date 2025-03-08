@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "**/*.env": "properties",
+    },
+    "yaml.schemas": {
+        "https://json.schemastore.org/traefik-v3.json": "/traefik/traefik.yml",
+        // Use v2 schema for dynamic configs - Traefik hasn't released an official schema for v3 dynamic configs
+        "https://json.schemastore.org/traefik-v2.json":  "/traefik/conf/*.yml",
+    },
+}
