@@ -1,0 +1,26 @@
+services:
+  nextcloud-aio-mastercontainer:
+    image: nextcloud/all-in-one:latest
+    init: true
+    restart: always
+    container_name: nextcloud-aio-mastercontainer
+    volumes:
+      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    network_mode: bridge # add to the same network as docker run would do
+    ports:
+      - "11001:8080" # For AIO Interface Access
+    environment:
+      # Needed for reverse proxy. (https://github.com/nextcloud/all-in-one/blob/main/reverse-proxy.md)
+      APACHE_PORT: "11000"
+      APACHE_IP_BINDING: "0.0.0.0"
+      APACHE_ADDITIONAL_NETWORK: frontend
+      # Sets the host directory for Nextcloud's datadir. (https://github.com/nextcloud/all-in-one#how-to-change-the-default-location-of-nextclouds-datadir)
+      # ⚠️ DO NOT CHANGE AFTER INSTALLATION! ⚠️
+      NEXTCLOUD_DATADIR: ${DATADIR}
+      # Nextcloud apps that are installed on starting AIO the first time. (https://github.com/nextcloud/all-in-one#how-to-change-the-nextcloud-apps-that-are-installed-on-the-first-startup)
+      NEXTCLOUD_STARTUP_APPS: ${STARTUP_APPS}
+
+volumes:
+  nextcloud_aio_mastercontainer:
+    name: nextcloud_aio_mastercontainer
