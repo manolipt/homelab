@@ -1,0 +1,54 @@
+# APPNICENAME=Stash
+# APPDESCRIPTION=An organizer for your porn, written in Go
+services:
+  stash:
+    image: stashapp/stash:latest
+    container_name: stash
+    restart: unless-stopped
+    networks:
+      - frontend
+    ports:
+      - "9999:9999" # Required for initial configuration, unless you provide a custom config
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "10"
+        max-size: "2m"
+    env_file:
+      - .env
+    environment:
+      - STASH_STASH=/data/
+      - STASH_GENERATED=/generated/
+      - STASH_METADATA=/metadata/
+      - STASH_CACHE=/cache/
+      - STASH_PORT=9999
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      ##
+      ## Adjust below paths (the left part) to your liking.
+      ## E.g. you can change ./config:/root/.stash to ./stash:/root/.stash
+      ##
+      ## Keep configs, scrapers, and plugins here.
+      - ./config:/root/.stash
+      ## Point this at your collection.
+      - "${STASH_DATADIR}/data:/data"
+      ## This is where your stash's metadata lives
+      - "${STASH_DATADIR}/metadata:/metadata"
+      ## Any other cache content.
+      - ./cache:/cache
+      ## Where to store binary blob data (scene covers, images)
+      - "${STASH_DATADIR}/blobs:/blobs"
+      ## Where to store generated content (screenshots,previews,transcodes,sprites)
+      - ./generated:/generated
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stash-https.rule=Host(`stash.${DOMAIN}`)"
+      - "traefik.http.routers.stash-https.entrypoints=websecure"
+      - "traefik.http.routers.stash-https.tls=true"
+      - "traefik.http.routers.stash-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.stash-https.middlewares=authentik@file"
+      - "traefik.http.routers.stash-https.service=stash-svc"
+      - "traefik.http.services.stash-svc.loadBalancer.server.port=9999"
+networks:
+  frontend:
+    external: true
