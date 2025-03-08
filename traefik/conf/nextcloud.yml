@@ -32,6 +32,6 @@ http:
       chain:
         middlewares:
         # - ... (e.g. rate-limiting middleware)
-          - https:redirect
+          - https-redirect
           - nextcloud-secure-headers
 
