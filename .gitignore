@@ -1,3 +1,13 @@
-acme.json
+# General
 .env
 !example.env
+
+# Traefik
+acme.json
+
+# Stash
+/stash/config/
+
+# Pihole
+/pihole/etc-pihole
+
