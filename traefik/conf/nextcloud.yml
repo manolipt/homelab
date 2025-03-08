@@ -1,3 +1,5 @@
+# Nextcloud setup for Traefik
+# nextcloud-aio makes Traefik labels a huge pain in the ass, so this is easier.
 http:
   routers:
     nextcloud:
