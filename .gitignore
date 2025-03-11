@@ -6,7 +6,7 @@
 acme.json
 
 # Stash
-/stash/config/
+/stash/**/
 
 # Pihole
 /pihole/etc-pihole
