@@ -1,54 +1,60 @@
 #!/bin/bash
 
 # Make sure to run this script as www-data user
-if [ "$(whoami)" != "www-data" ]; then
+if [[ "$(whoami)" != "www-data" ]]; then
     exec su -s /bin/bash www-data "$0" "$@"
 fi
 
 echo "Running Nextcloud post-installation setup as www-data..."
 
 # Set trusted proxies to all private IPs if not set by the user
-trusted_proxies = $(php occ config:system:get trusted_proxies)
+trusted_proxies=$(php occ config:system:get trusted_proxies)
 
-if [ -z $trusted_proxies ] && [ -z $NO_TRUSTED_PROXIES ]; then
+if [[ -z "$trusted_proxies" && -z "$NO_TRUSTED_PROXIES" ]]; then
+    echo "Setting trusted proxies to all private IP addresses..."
     php occ config:system:set trusted_proxies 0 --value="10.0.0.0/8"
     php occ config:system:set trusted_proxies 1 --value="172.16.0.0/12"
     php occ config:system:set trusted_proxies 2 --value="192.168.0.0/16"
+else
+    echo "Trusted proxies already provided. Skipping..."
 fi
 
 # Set default phone region if declared
-if [ -n $DEFAULT_PHONE_REGION ]; then
+if [[ -n "$DEFAULT_PHONE_REGION" ]]; then
     php occ config:system:set default_phone_region --value="$DEFAULT_PHONE_REGION"
+else
+    echo "No default phone region provided. Skipping..."
 fi
 
 # Install and enable specified apps
-if [ -n $NEXTCLOUD_STARTUP_APPS ]; then
-    read -a apps <<< $NEXTCLOUD_STARTUP_APPS
+if [[ -n "$NEXTCLOUD_STARTUP_APPS" ]]; then
+    echo "Installing startup apps..."
+    read -a apps <<< "$NEXTCLOUD_STARTUP_APPS"
     for app in "${apps[@]}"; do
-        php occ app:install $app
-        php occ app:enable $app
+        php occ app:install "$app"
     done
 fi
 
 # Set up basic user groups
-if [ -z $NO_DEFAULT_GROUPS ]; then
+if [[ -z "$NO_DEFAULT_GROUPS" ]]; then
+    echo "Initializing default groups..."
     php occ group:add -- "Nextcloud Users"
     php occ group:add -- "Nextcloud Admins"
-    php occ group:promote "Nextcloud Admins"
 fi
 
 # OpenID Connect User Provisioning Setup
 oidc_configuration_provided=$(
-    [ -n $OIDC_PROVIDER_NAME ] &&
-    [ -n $OIDC_CLIENT_ID ] &&
-    [ -n $OIDC_CLIENT_SECRET ] &&
-    [ -n $OIDC_CONFIGURATION_URL]
+    [[ -n "$OIDC_PROVIDER_NAME" ]] &&
+    [[ -n "$OIDC_CLIENT_ID" ]] &&
+    [[ -n "$OIDC_CLIENT_SECRET" ]] &&
+    [[ -n "$OIDC_CONFIGURATION_URL" ]]
 )
 
 if $oidc_configuration_provided; then
+    echo "Configuring OpenID Connect for $OIDC_PROVIDER_NAME..."
+    
     # Install user_oidc plugin
     php occ app:install user_oidc
-    php occ app:enable user_oidc
 
     # Register provider with OIDC plugin
     php occ user_oidc:provider "$OIDC_PROVIDER_NAME" \

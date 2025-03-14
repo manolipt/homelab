@@ -1,6 +1,8 @@
 services:
   app:
-    build: ./app
+    build:
+      context: ./app
+      dockerfile: Dockerfile
     depends_on:
       - db
       - redis
