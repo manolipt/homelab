@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "**/*.env": "properties",
+        "/nextcloud/app/post-installation": "shellscript",
     },
     "yaml.schemas": {
         "https://json.schemastore.org/traefik-v3.json": "/traefik/traefik.yml",

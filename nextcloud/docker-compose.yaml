@@ -1,26 +1,69 @@
 services:
-  nextcloud-aio-mastercontainer:
-    image: nextcloud/all-in-one:latest
-    init: true
-    restart: always
-    container_name: nextcloud-aio-mastercontainer
-    volumes:
-      - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    network_mode: bridge # Add to the same network as docker run would do
-    ports:
-      - "11001:8080" # For AIO Interface Access
+  app:
+    build: ./app
+    depends_on:
+      - db
+      - redis
     env_file:
       - .env
     environment:
-      # Needed for reverse proxy. (https://github.com/nextcloud/all-in-one/blob/main/reverse-proxy.md)
-      APACHE_PORT: "11000"
-      APACHE_IP_BINDING: "0.0.0.0"
-      APACHE_ADDITIONAL_NETWORK: frontend
-      # Putting this here because I've never been able to make this work with a reverse proxy.
-      # If you want to try and get domain validation up and running, be my guest :)
-      SKIP_DOMAIN_VALIDATION: true
+      # Database Config
+      MYSQL_HOST: db
+      # Redis Config
+      REDIS_HOST: redis
+      # Apache Config
+      OVERWRITE_PROTOCOL: "https"
+      # Nextcloud Config
+      NEXTCLOUD_DATA_DIR: /var/www/html/data
+      NEXTCLOUD_TRUSTED_DOMAINS: "cloud.${DOMAIN}"
+    volumes:
+      - ${NEXTCLOUD_STORAGE}:/var/www/html
+    networks:
+      - frontend
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=Host(`cloud.${DOMAIN}`)"
+      - "traefik.http.routers.nextcloud.entrypoints=websecure"
+      - "traefik.http.routers.nextcloud.tls.certresolver=letsencrypt"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+    restart: unless-stopped
+
+  db:
+    image: mariadb:10.6
+    env_file:
+      - .env
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    networks:
+      - backend
+    restart: unless-stopped
+
+  cron:
+    image: nextcloud:latest
+    entrypoint: /cron.sh
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ${NEXTCLOUD_STORAGE}:/var/www/html
+    networks:
+      - backend
+    restart: unless-stopped
 
 volumes:
-  nextcloud_aio_mastercontainer:
-    name: nextcloud_aio_mastercontainer
+  db_data:
+
+networks:
+  frontend:
+    external: true
+  backend:
+    internal: true
