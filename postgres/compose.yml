@@ -1,0 +1,36 @@
+---
+services:
+  postgres:
+    image: postgres:18.3
+    container_name: postgres
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+      - backend
+
+  pgadmin:
+    image: dpage/pgadmin4
+    env_file:
+      - .env
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+    name: postgres_data
+
+networks:
+  postgres:
+    name: postgres
+    driver: bridge
+  backend:
+    driver: bridge
