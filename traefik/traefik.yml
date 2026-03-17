@@ -1,0 +1,26 @@
+# Traefik static configuration file
+entryPoints:
+  web:
+    address: ":80"
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      storage: /acme.json
+      caServer: "https://acme-v02.api.letsencrypt.org/directory"
+
+api:
+  dashboard: true
+
+log:
+  level: DEBUG
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: traefik
+
+  file:
+    directory: /etc/traefik/conf/
+    watch: true

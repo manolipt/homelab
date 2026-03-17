@@ -1,0 +1,12 @@
+http:
+  routers:
+    homeassistant:
+      rule: Host(`home.secretlyanarwhal.com`)
+      service: homeassistant
+      entryPoints:
+        - web
+  services:
+    homeassistant:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8123"

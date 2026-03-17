@@ -2,12 +2,14 @@ services:
   homeassistant:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:2026.3.1"
+    env_file:
+      - .env
     volumes:
-      - /srv/homeassistant:/config
+      - ${SVC_CONFIG_DIR}:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
     restart: unless-stopped
     privileged: true
     network_mode: host
     environment:
-      TZ: America/Los_Angeles
+      TZ: ${TZ}

@@ -1,0 +1,23 @@
+# Traefik Setup
+services:
+  traefik:
+    image: traefik:v3
+    container_name: traefik
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - traefik
+    ports:
+      - "80:80"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./conf:/etc/traefik/conf:ro # Extra directory for dynamic configurations
+
+networks:
+  traefik:
+    name: traefik
+    driver: bridge

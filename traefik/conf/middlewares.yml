@@ -1,0 +1,29 @@
+http:
+  middlewares:
+
+    default-chain:
+      chain:
+        middlewares:
+          - gzip
+          - security-headers
+
+    infra-chain:
+      chain:
+        middlewares:
+          - gzip
+          - security-headers
+          - traefik-auth
+
+    gzip:
+      compress: {}
+
+    security-headers:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        referrerPolicy: "same-origin"
+    
+    traefik-auth:
+      basicAuth:
+        users:
+          - '{{ env "SVC_DASHBOARD_HASH" }}'
