@@ -1,0 +1,9 @@
+http:
+  routers:
+    traefik-dashboard:
+      rule: Host(`traefik.internal`)
+      entryPoints:
+        - web
+      service: api@internal
+      middlewares:
+        - infra-chain

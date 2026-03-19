@@ -1,0 +1,33 @@
+# Pihole Compose File
+# More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
+# Capabilities notes: https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:2026.02.0
+    networks:
+      - traefik
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    env_file:
+      - .env
+    environment:
+      TZ: ${TZ}
+      FTLCONF_webserver_api_password: ${WEBPASSWORD}
+      FTLCONF_dns_listeningMode: 'all'
+      FTLCONF_misc_dnsmasq_lines: |-
+        address=/internal/${NODE_IP}
+    volumes:
+      - '${SVC_STORAGE_DIR}:/etc/pihole'
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pihole.rule=Host(`pihole.internal`)"
+      - "traefik.http.routers.pihole.entrypoints=web"
+      - "traefik.http.services.pihole.loadbalancer.server.port=80"
+      - "traefik.http.routers.pihole.middlewares=infra-chain@file"
+
+networks:
+  traefik:
+    external: true
