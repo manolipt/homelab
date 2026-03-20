@@ -2,12 +2,9 @@
 entryPoints:
   web:
     address: ":80"
-
-certificatesResolvers:
-  letsencrypt:
-    acme:
-      storage: /acme.json
-      caServer: "https://acme-v02.api.letsencrypt.org/directory"
+    forwardedHeaders:
+      trustedIPs:
+        - 172.16.0.0/12
 
 api:
   dashboard: true
