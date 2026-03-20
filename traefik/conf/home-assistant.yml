@@ -5,6 +5,8 @@ http:
       service: homeassistant
       entryPoints:
         - web
+      middlewares:
+        - public-chain
   services:
     homeassistant:
       loadBalancer:

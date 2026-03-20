@@ -21,8 +21,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.authentik.rule=Host(`auth.${DOMAIN}`)"
       - "traefik.http.routers.authentik.entrypoints=web"
-      - "traefik.http.routers.authentik.service=authentik-svc"
-      - "traefik.http.services.authentik-svc.loadBalancer.server.port=9000"
+      - "traefik.http.routers.authentik.middlewares=public-chain@file"
+      - "traefik.http.services.authentik.loadBalancer.server.port=9000"
     networks:
       - backend
       - traefik

@@ -1,11 +1,12 @@
 http:
   middlewares:
 
-    default-chain:
+    public-chain:
       chain:
         middlewares:
           - gzip
           - security-headers
+          - redirect-to-https
 
     infra-chain:
       chain:
@@ -16,6 +17,10 @@ http:
 
     gzip:
       compress: {}
+    
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
 
     security-headers:
       headers:
