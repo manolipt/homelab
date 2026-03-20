@@ -4,13 +4,18 @@ http:
     default-chain:
       chain:
         middlewares:
+          - gzip
           - security-headers
 
     infra-chain:
       chain:
         middlewares:
+          - gzip
           - security-headers
           - traefik-auth
+
+    gzip:
+      compress: {}
 
     security-headers:
       headers:

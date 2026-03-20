@@ -10,7 +10,12 @@ api:
   dashboard: true
 
 log:
-  level: DEBUG
+  level: INFO
+
+accessLog:
+  filters:
+    statusCodes:
+      - "400-599"
 
 providers:
   docker:

@@ -1,7 +1,7 @@
 http:
   routers:
     homeassistant:
-      rule: Host(`home.secretlyanarwhal.com`)
+      rule: Host(`home.{{ env "DOMAIN" }}`)
       service: homeassistant
       entryPoints:
         - web
