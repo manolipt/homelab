@@ -3,10 +3,9 @@ services:
   radicale:
     image: tomsquest/docker-radicale:3.6.1.0
     container_name: radicale
-    ports:
-      - 5232:5232
+    env_file:
+      - .env
     init: true
-    read_only: true
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -25,7 +24,27 @@ services:
       test: curl -f http://127.0.0.1:5232 || exit 1
       interval: 30s
       retries: 3
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radicale.rule=Host(`radicale.${DOMAIN}`)"
+      - "traefik.http.routers.radicale.entrypoints=web"
+      - "traefik.http.routers.radicale.middlewares=public-chain@file"
+      - "traefik.http.services.radicale.loadbalancer.server.port=5232"
     restart: unless-stopped
     volumes:
-      - /srv/radicale:/data
+      - ${SVC_STORAGE_DIR}:/data
       - ./config:/config:ro
+    secrets:
+      - ldap_password
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
+
+secrets:
+  ldap_password:
+    environment: LDAP_PASSWORD

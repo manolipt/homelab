@@ -66,4 +66,5 @@ networks:
   postgres:
     external: true
   backend:
+    name: authentik_backend
     driver: bridge
