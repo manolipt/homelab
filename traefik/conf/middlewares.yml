@@ -1,20 +1,6 @@
 http:
   middlewares:
 
-    public-chain:
-      chain:
-        middlewares:
-          - gzip
-          - security-headers
-          - redirect-to-https
-
-    infra-chain:
-      chain:
-        middlewares:
-          - gzip
-          - security-headers
-          - traefik-auth
-
     gzip:
       compress: {}
     

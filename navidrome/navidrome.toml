@@ -1,0 +1,9 @@
+# Navidrome Config
+
+LogLevel = 'info'
+
+MusicFolder = '/music'
+DataFolder = '/data'
+
+EnableSharing = true
+EnableTranscodingCancellation = true
