@@ -1,0 +1,119 @@
+# Docker Compose file for running paperless from the Docker Hub.
+# This file contains everything paperless needs to run.
+# Paperless supports amd64, arm and arm64 hardware.
+#
+# All compose files of paperless configure paperless in the following way:
+#
+# - Paperless is (re)started on system boot, if it was running before shutdown.
+# - Docker volumes for storing data are managed by Docker.
+# - Folders for importing and exporting files are created in the same directory
+#   as this file and mounted to the correct folders inside the container.
+# - Paperless listens on port 8000.
+#
+# In addition to that, this Docker Compose file adds the following optional
+# configurations:
+#
+# - Instead of SQLite (default), PostgreSQL is used as the database server.
+#
+# To install and update paperless with this file, do the following:
+#
+# - Copy this file as 'docker-compose.yml' and the files 'docker-compose.env'
+#   and '.env' into a folder.
+# - Run 'docker compose pull'.
+# - Run 'docker compose up -d'.
+#
+# For more extensive installation and update instructions, refer to the
+# documentation.
+services:
+  broker:
+    image: valkey/valkey
+    restart: unless-stopped
+    networks:
+      - backend
+  
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    restart: unless-stopped
+    depends_on:
+      - broker
+      - gotenberg
+      - tika
+    networks:
+      - backend
+      - traefik
+      - postgres
+    volumes:
+      - ${SVC_DATA_DIR}:/usr/src/paperless/data
+      - ${SVC_DOCUMENTS_DIR}:/usr/src/paperless/media
+      # Only needed if you want to use the import and export folders. You can remove these lines if you don't need them.
+      # - ./export:/usr/src/paperless/export
+      # - ./consume:/usr/src/paperless/consume
+    env_file: .env
+    environment:
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_DBHOST: postgres
+      PAPERLESS_DBENGINE: postgresql
+      PAPERLESS_DBNAME: paperless
+      PAPERLESS_TIKA_ENABLED: 1
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
+      PAPERLESS_TIKA_ENDPOINT: http://tika:9998
+      PAPERLESS_URL: "https://paperless.${DOMAIN}"
+      PAPERLESS_TRUSTED_PROXIES: 172.16.0.0/12
+      PAPERLESS_APPS: "allauth.socialaccount.providers.openid_connect"
+      PAPERLESS_SOCIALACCOUNT_PROVIDERS: >
+        {
+          "openid_connect": {
+            "OAUTH_PKCE_ENABLED": true,
+            "APPS": [
+              {
+                "provider_id": "authentik",
+                "name": "authentik",
+                "client_id": "${AUTHENTIK_CLIENT_ID}",
+                "secret": "${AUTHENTIK_CLIENT_SECRET}",
+                "settings": {
+                  "server_url": "https://auth.${DOMAIN}/application/o/paperless/.well-known/openid-configuration",
+                  "fetch_userinfo": true
+                }
+              }
+            ],
+            "SCOPE": ["openid", "profile", "email"]
+          }
+        }
+      PAPERLESS_LOGOUT_REDIRECT_URL: "https://auth.${DOMAIN}/application/o/paperless/end-session/"
+      PAPERLESS_SOCIAL_AUTO_SIGNUP: true
+      PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS: true
+      # Enable these ONLY after validating SSO and setting an authentik user as a paperless admin + superuser. Otherwise, you might lock yourself out of paperless.
+      PAPERLESS_DISABLE_REGULAR_LOGIN: "true"
+      PAPERLESS_REDIRECT_LOGIN_TO_SSO: "true"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.paperless.rule=Host(`paperless.${DOMAIN}`)
+      - traefik.http.routers.paperless.entrypoints=web
+      - traefik.http.routers.paperless.middlewares=public-chain@file
+      - traefik.http.services.paperless.loadbalancer.server.port=8000
+
+  gotenberg:
+    image: docker.io/gotenberg/gotenberg:8.25
+    restart: unless-stopped
+    networks:
+      - backend
+    # The gotenberg chromium route is used to convert .eml files. We do not
+    # want to allow external content like tracking pixels or even javascript.
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-allow-list=file:///tmp/.*"
+  
+  tika:
+    image: docker.io/apache/tika:latest
+    restart: unless-stopped
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+  traefik:
+    external: true
+  postgres:
+    external: true
