@@ -1,0 +1,28 @@
+services:
+  grocy:
+    image: lscr.io/linuxserver/grocy:latest
+    container_name: grocy
+    env_file: .env
+    environment:
+      PUID: ${UID}
+      PGID: ${GID}
+      TZ: ${TZ}
+      GROCY_DISABLE_AUTH: false
+      GROCY_AUTH_CLASS: Grocy\Middleware\ReverseProxyAuthMiddleware
+      GROCY_REVERSE_PROXY_AUTH_HEADER: X-Authentik-Username
+      GROCY_REVERSE_PROXY_AUTH_USE_ENV: false
+    volumes:
+      - ${SVC_STORAGE_DIR}:/config
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grocy.rule=Host(`grocy.${DOMAIN}`)"
+      - "traefik.http.routers.grocy.entrypoints=web"
+      - "traefik.http.routers.grocy.middlewares=authentik-chain@file"
+      - "traefik.http.services.grocy.loadBalancer.server.port=80"
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true
