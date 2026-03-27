@@ -3,6 +3,7 @@ services:
   postgres:
     image: postgres:18.3
     container_name: postgres
+    restart: always
     env_file:
       - .env
     volumes:
@@ -15,6 +16,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
+    restart: unless-stopped
     env_file:
       - .env
     depends_on:
