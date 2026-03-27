@@ -1,0 +1,23 @@
+services:
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ${SVC_AUDIOBOOKS_DIR}:/audiobooks
+      - ${SVC_PODCASTS_DIR}:/podcasts
+      - ${SVC_CONFIG_DIR}:/config
+      - ${SVC_METADATA_DIR}:/metadata
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.audiobookshelf.rule=Host(`audiobookshelf.${DOMAIN}`)"
+      - "traefik.http.routers.audiobookshelf.entrypoints=web"
+      - "traefik.http.routers.audiobookshelf.middlewares=public-chain@file"
+      - "traefik.http.services.audiobookshelf.loadBalancer.server.port=80"
+
+networks:
+  traefik:
+    external: true
