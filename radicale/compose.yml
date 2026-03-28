@@ -1,7 +1,7 @@
 ---
 services:
   radicale:
-    image: tomsquest/docker-radicale:3.6.1.0
+    image: tomsquest/docker-radicale:latest
     container_name: radicale
     env_file:
       - .env

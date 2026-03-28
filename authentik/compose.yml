@@ -16,7 +16,7 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ${SVC_STORAGE_DIR}/media:/media
-      - ${SVC_STORAGE_DIR}/authentik/custom-templates:/templates
+      - ${SVC_STORAGE_DIR}/custom-templates:/templates
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.authentik.rule=Host(`auth.${DOMAIN}`)"
@@ -53,9 +53,9 @@ services:
     user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${SVC_STORAGE_DIR}/authentik/media:/media
-      - ${SVC_STORAGE_DIR}/authentik/certs:/certs
-      - ${SVC_STORAGE_DIR}/authentik/custom-templates:/templates
+      - ${SVC_STORAGE_DIR}/media:/media
+      - ${SVC_STORAGE_DIR}/certs:/certs
+      - ${SVC_STORAGE_DIR}/custom-templates:/templates
     networks:
       - backend
       - postgres

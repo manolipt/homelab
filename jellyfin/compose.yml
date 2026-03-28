@@ -10,8 +10,8 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
     volumes:
-      - ${SVC_STORAGE_DIR}/config:/config
-      - ${SVC_STORAGE_DIR}/cache:/cache
+      - ${SVC_CONFIG_DIR}:/config
+      - ${SVC_CACHE_DIR}:/cache
       - type: bind
         source: ${SVC_MEDIA_STORAGE}
         target: /media
