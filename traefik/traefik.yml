@@ -5,6 +5,14 @@ entryPoints:
     forwardedHeaders:
       trustedIPs:
         - 172.16.0.0/12
+  metrics:
+    address: ":8082"
+
+metrics:
+  prometheus:
+    entryPoint: metrics
+    addEntryPointsLabels: true
+    addServicesLabels: true
 
 api:
   dashboard: true

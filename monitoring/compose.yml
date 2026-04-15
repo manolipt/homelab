@@ -1,11 +1,64 @@
 services:
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    restart: always
+    user: ${UID:-1000}:${GID:-1000}
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.external-url=http://prometheus.internal
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ${SVC_PROMETHEUS_DIR}:/prometheus
+    networks:
+      - traefik
+      - backend
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.prometheus.loadBalancer.server.port=9090
+      - traefik.http.routers.prometheus.rule=Host(`prometheus.internal`)
+      - traefik.http.routers.prometheus.entrypoints=web
+      - traefik.http.routers.prometheus.middlewares=infra-chain@file
+    depends_on:
+      - node_exporter
+      - cadvisor
+  
+  cadvisor:
+    container_name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:latest
+    networks:
+      - backend
+    volumes: 
+      - "/:/rootfs"
+      - "/var/run:/var/run"
+      - "/sys:/sys"
+      - "/var/lib/docker/:/var/lib/docker"
+      - "/dev/disk/:/dev/disk"
+    privileged: true
+    devices: 
+      - "/dev/kmsg"
+  
+  node_exporter:
+    container_name: node_exporter
+    image: prom/node-exporter:latest
+    restart: always
+    user: ${UID:-1000}:${GID:-1000}
+    command:
+      - --path.rootfs=/host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro
+    networks:
+      - backend
+    
   grafana:
     container_name: grafana
     image: docker.io/grafana/grafana-oss:latest
     restart: unless-stopped
     env_file:
       - .env
-    user: ${GRAFANA_USER_ID:-1000}:${GRAFANA_GROUP_ID:-1000}
+    user: ${UID:-1000}:${GID:-1000}
     environment:
       - GF_DATABASE_TYPE=postgres
       - GF_DATABASE_HOST=postgres
@@ -27,18 +80,23 @@ services:
       - GF_AUTH_OAUTH_ALLOW_INSECURE_EMAIL_LOOKUP=true
       - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH=${GRAFANA_OAUTH_ROLE_ATTRIBUTE_PATH:-"'Viewer'"}
     networks:
+      - backend
       - postgres
       - traefik
     volumes:
-      - ${SVC_STORAGE_DIR}:/var/lib/grafana
+      - ${SVC_GRAFANA_DIR}:/var/lib/grafana
     labels:
       - traefik.enable=true
       - traefik.http.services.grafana.loadBalancer.server.port=3000
       - traefik.http.routers.grafana.rule=Host(`grafana.${DOMAIN}`)
       - traefik.http.routers.grafana.entrypoints=web
       - traefik.http.routers.grafana.middlewares=public-chain@file
+    depends_on:
+      - prometheus
 
 networks:
+  backend:
+    driver: bridge
   traefik:
     external: true
   postgres:
