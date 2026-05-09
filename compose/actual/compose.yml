@@ -7,6 +7,9 @@ services:
       ACTUAL_LOGIN_METHOD: openid
       ACTUAL_ALLOWED_LOGIN_METHODS: openid
       ACTUAL_OPENID_SERVER_HOSTNAME: https://actual.${DOMAIN}
+      ACTUAL_OPENID_CLIENT_ID: ${ACTUAL_OPENID_CLIENT_ID}
+      ACTUAL_OPENID_CLIENT_SECRET: ${ACTUAL_OPENID_CLIENT_SECRET}
+      ACTUAL_OPENID_DISCOVERY_URL: ${ACTUAL_OPENID_DISCOVERY_URL}
     volumes:
       # Change './actual-data' below to the path to the folder you want Actual to store its data in on your server.
       # '/data' is the path Actual will look for its files in by default, so leave that as-is.
