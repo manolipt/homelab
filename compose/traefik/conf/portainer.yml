@@ -1,0 +1,15 @@
+http:
+  routers:
+    portainer:
+      rule: Host(`portainer.{{ env "DOMAIN" }}`)
+      service: portainer
+      entryPoints:
+        - web
+      middlewares:
+        - public-chain
+  
+  services:
+    portainer:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8000"
