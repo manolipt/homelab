@@ -41,16 +41,17 @@ services:
     networks:
       - backend
       - traefik
-      - postgres
     volumes:
       - ${SVC_DATA_DIR}:/usr/src/paperless/data
       - ${SVC_DOCUMENTS_DIR}:/usr/src/paperless/media
       # Only needed if you want to use the import and export folders. You can remove these lines if you don't need them.
       # - ./export:/usr/src/paperless/export
       # - ./consume:/usr/src/paperless/consume
+    extra_hosts:
+      - host.docker.internal:host-gateway
     environment:
       PAPERLESS_REDIS: redis://broker:6379
-      PAPERLESS_DBHOST: postgres
+      PAPERLESS_DBHOST: host.docker.internal
       PAPERLESS_DBENGINE: postgresql
       PAPERLESS_DBNAME: paperless
       PAPERLESS_TIKA_ENABLED: 1
@@ -118,6 +119,4 @@ networks:
   backend:
     driver: bridge
   traefik:
-    external: true
-  postgres:
     external: true
