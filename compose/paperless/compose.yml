@@ -84,6 +84,11 @@ services:
       # Enable these ONLY after validating SSO and setting an authentik user as a paperless admin + superuser. Otherwise, you might lock yourself out of paperless.
       PAPERLESS_DISABLE_REGULAR_LOGIN: "true"
       PAPERLESS_REDIRECT_LOGIN_TO_SSO: "true"
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+      PAPERLESS_TIME_ZONE: ${PAPERLESS_TIME_ZONE}
+      PAPERLESS_OCR_LANGUAGE: ${PAPERLESS_OCR_LANGUAGE}
+      PAPERLESS_DBUSER: ${PAPERLESS_DBUSER}
+      PAPERLESS_DBPASS: ${PAPERLESS_DBPASS}
     labels:
       - traefik.enable=true
       - traefik.http.routers.paperless.rule=Host(`paperless.${DOMAIN}`)
