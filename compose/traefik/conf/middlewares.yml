@@ -14,11 +14,6 @@ http:
         contentTypeNosniff: true
         referrerPolicy: "same-origin"
     
-    traefik-auth:
-      basicAuth:
-        users:
-          - '{{ env "SVC_DASHBOARD_HASH" }}'
-    
     public-chain:
       chain:
         middlewares:
@@ -52,4 +47,3 @@ http:
         middlewares:
           - gzip
           - security-headers
-          - traefik-auth
