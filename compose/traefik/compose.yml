@@ -1,7 +1,7 @@
 # Traefik Setup
 services:
   traefik:
-    image: traefik:v3.6.12
+    image: traefik:v3.7.0
     container_name: traefik
     restart: always
     networks:
