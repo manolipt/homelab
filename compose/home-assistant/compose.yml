@@ -2,8 +2,6 @@ services:
   homeassistant:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:2026.3.1"
-    env_file:
-      - .env
     volumes:
       - ${SVC_CONFIG_DIR}:/config
       - /etc/localtime:/etc/localtime:ro

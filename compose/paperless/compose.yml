@@ -48,7 +48,6 @@ services:
       # Only needed if you want to use the import and export folders. You can remove these lines if you don't need them.
       # - ./export:/usr/src/paperless/export
       # - ./consume:/usr/src/paperless/consume
-    env_file: .env
     environment:
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_DBHOST: postgres

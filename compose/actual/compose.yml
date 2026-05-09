@@ -2,7 +2,6 @@ services:
   actual-server:
     image: docker.io/actualbudget/actual-server:latest
     container_name: actual-server
-    env_file: .env
     environment:
       ACTUAL_DATA_DIR: /data
       ACTUAL_LOGIN_METHOD: openid

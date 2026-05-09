@@ -2,8 +2,6 @@ services:
   navidrome:
     image: deluan/navidrome:latest
     container_name: navidrome
-    env_file:
-      - .env
     user: ${UID}:${GID} # should be owner of volumes
     restart: unless-stopped
     volumes:

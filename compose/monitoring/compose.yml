@@ -56,8 +56,6 @@ services:
     container_name: grafana
     image: docker.io/grafana/grafana-oss:latest
     restart: unless-stopped
-    env_file:
-      - .env
     user: ${UID:-1000}:${GID:-1000}
     environment:
       - GF_DATABASE_TYPE=postgres

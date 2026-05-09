@@ -2,8 +2,6 @@ services:
   audiobookshelf:
     image: ghcr.io/advplyr/audiobookshelf:latest
     restart: unless-stopped
-    env_file:
-      - .env
     volumes:
       - ${SVC_AUDIOBOOKS_DIR}:/audiobooks
       - ${SVC_PODCASTS_DIR}:/podcasts

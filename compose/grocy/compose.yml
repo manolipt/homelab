@@ -2,7 +2,6 @@ services:
   grocy:
     image: lscr.io/linuxserver/grocy:latest
     container_name: grocy
-    env_file: .env
     environment:
       PUID: ${UID}
       PGID: ${GID}
