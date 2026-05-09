@@ -7,6 +7,8 @@ services:
       - ${SVC_PODCASTS_DIR}:/podcasts
       - ${SVC_CONFIG_DIR}:/config
       - ${SVC_METADATA_DIR}:/metadata
+    environment:
+      TZ: ${TZ}
     networks:
       - traefik
     labels:
